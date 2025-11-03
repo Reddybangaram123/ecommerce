@@ -8,7 +8,11 @@ import Fashion from "./pages/Fashion";
 import HomeKitchen from "./pages/HomeKitchen";
 import Books from "./pages/Books";
 import Toys from "./pages/Toys";
+import Furniture from "./pages/Furniture";
+import Grocery from "./pages/Grocery";
 import CustomerService from "./pages/CustomerService";
+import CartPage from "./pages/CartPage";  
+
 
 export default function App() {
   return (
@@ -16,7 +20,6 @@ export default function App() {
       <Navbar />
       <div className="p-6">
         <Routes>
-          {/* 🏠 Default route now renders Home page */}
           <Route path="/" element={<Home />} /> 
           <Route path="/mobiles" element={<Mobiles />} />
           <Route path="/electronics" element={<Electronics />} />
@@ -24,7 +27,10 @@ export default function App() {
           <Route path="/home-kitchen" element={<HomeKitchen />} />
           <Route path="/books" element={<Books />} />
           <Route path="/toys" element={<Toys />} />
+          <Route path="/furniture" element={<Furniture />} />
+          <Route path="/grocery" element={<Grocery />} />
           <Route path="/customer-service" element={<CustomerService />} />
+          <Route path="/cart" element={<CartPage />} /> 
         </Routes>
       </div>
     </Router>
