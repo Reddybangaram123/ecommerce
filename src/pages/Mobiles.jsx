@@ -1,17 +1,12 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import ProductGrid from "../components/Mobiles/ProductGrid";
-import ProductCard from "../components/Mobiles/ProductCard";
 
 export default function Mobiles() {
-  const mobileProducts = [];
-
+  const { category } = useParams(); // iphone or android
   return (
     <div className="text-center mt-10">
-      <ProductGrid>
-        {mobileProducts.map((m) => (
-          <ProductCard key={m.id} product={m} />
-        ))}
-      </ProductGrid>
+      <ProductGrid category={category || "all"} />
     </div>
   );
 }

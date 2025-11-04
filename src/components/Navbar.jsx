@@ -1,21 +1,31 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaSearch, FaShoppingCart, FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
-import { useCart } from "../context/CartContext"; // ✅ Added for cart count
+import {
+  FaSearch,
+  FaShoppingCart,
+  FaBars,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
+import { useCart } from "../context/CartContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const { cart } = useCart(); // ✅ Access cart from context
-
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const toggleAccount = () => setIsAccountOpen((prev) => !prev);
-
-  // Simulated login name (you can replace with context or localStorage)
+  const [dropdownsOpen, setDropdownsOpen] = useState({});
+  const { cart = [] } = useCart();
   const loggedInUser = localStorage.getItem("username") || "Guest";
 
-  // Close dropdown when clicking outside
+  const dropdownRef = useRef(null);
+
+  // ✅ toggleDropdown fixed — independent per section
+  const toggleDropdown = (name) => {
+    setDropdownsOpen((prev) => ({
+      ...prev,
+      [name]: !prev[name],
+    }));
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -30,9 +40,12 @@ export default function Navbar() {
     <header className="bg-[#131921] text-white relative">
       {/* TOP NAV */}
       <div className="flex items-center justify-between px-6 py-3">
-        {/* Logo and Menu */}
+        {/* Logo & Hamburger */}
         <div className="flex items-center space-x-2">
-          <button onClick={toggleMenu} className="text-2xl cursor-pointer">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="text-2xl cursor-pointer md:hidden"
+          >
             <FaBars />
           </button>
           <h1 className="text-2xl font-bold text-white">
@@ -41,7 +54,7 @@ export default function Navbar() {
         </div>
 
         {/* Search Bar */}
-        <div className="flex flex-grow mx-4 bg-white rounded-md overflow-hidden max-w-2xl">
+        <div className="hidden md:flex flex-grow mx-4 bg-white rounded-md overflow-hidden max-w-2xl">
           <input
             type="text"
             placeholder="Search E-Commerce.in"
@@ -52,13 +65,13 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Right Section */}
+        {/* Account & Cart */}
         <div className="flex items-center space-x-6 text-sm relative">
           {/* Account Dropdown */}
           <div className="hidden sm:block relative" ref={dropdownRef}>
             <div
               className="cursor-pointer flex items-center gap-1"
-              onClick={toggleAccount}
+              onClick={() => setIsAccountOpen(!isAccountOpen)}
             >
               <div>
                 <p className="text-gray-300 text-sm">Hello, {loggedInUser}</p>
@@ -94,17 +107,10 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Returns & Orders */}
-          <div className="hidden sm:block">
-            <p className="font-semibold">Returns</p>
-            <p className="text-sm text-gray-300">& Orders</p>
-          </div>
-
-          {/* ✅ Cart with live item count */}
+          {/* Cart */}
           <Link to="/cart" className="flex items-center cursor-pointer relative">
             <FaShoppingCart className="text-2xl" />
             <span className="ml-1 font-semibold">Cart</span>
-
             {cart.length > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-1.5">
                 {cart.length}
@@ -114,52 +120,204 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* CATEGORY LINKS (DESKTOP) */}
+      {/* CATEGORY LINKS (Desktop) */}
       <nav className="hidden md:flex bg-[#232f3e] text-sm px-6 py-2 flex-wrap gap-6">
-        <Link to="/" className="hover:text-[#febd69]">Home</Link>
-        <Link to="/mobiles" className="hover:text-[#febd69]">Mobiles</Link>
-        <Link to="/electronics" className="hover:text-[#febd69]">Electronics</Link>
-        <Link to="/fashion" className="hover:text-[#febd69]">Fashion</Link>
-        <Link to="/home-kitchen" className="hover:text-[#febd69]">Home & Kitchen</Link>
-        <Link to="/furniture" className="hover:text-[#febd69]">Furniture</Link>
-        <Link to="/books" className="hover:text-[#febd69]">Books</Link>
-        <Link to="/toys" className="hover:text-[#febd69]">Toys</Link>
-        <Link to="/grocery" className="hover:text-[#febd69]">Grocery</Link>
-        <Link to="/customer-service" className="hover:text-[#febd69]">Customer Service</Link>
+        <Link to="/" className="hover:text-[#febd69]">
+          Home
+        </Link>
+
+        <Dropdown label="Mobiles">
+          <Link to="/mobiles/iphone">iPhone</Link>
+          <Link to="/mobiles/android">Android</Link>
+        </Dropdown>
+
+        <Dropdown label="Electronics">
+          <Link to="/electronics/modules">Modules</Link>
+          <Link to="/electronics/laptops">Laptops</Link>
+          <Link to="/electronics/cameras">Cameras</Link>
+        </Dropdown>
+
+        <Dropdown label="Fashion">
+          <Link to="/fashion/men">Men</Link>
+          <Link to="/fashion/women">Women</Link>
+          <Link to="/fashion/kids">Kids</Link>
+        </Dropdown>
+
+        <Dropdown label="Home & Kitchen">
+          <Link to="/home-kitchen/appliances">Appliances</Link>
+          <Link to="/home-kitchen/decor">Decor</Link>
+          <Link to="/home-kitchen/utensils">Utensils</Link>
+        </Dropdown>
+
+        <Dropdown label="Furniture">
+          <Link to="/furniture/sofa">Sofas</Link>
+          <Link to="/furniture/tables">Tables</Link>
+          <Link to="/furniture/beds">Beds</Link>
+        </Dropdown>
+
+        <Dropdown label="Books">
+          <Link to="/books/fiction">Fiction</Link>
+          <Link to="/books/non-fiction">Non-Fiction</Link>
+          <Link to="/books/academic">Academic</Link>
+        </Dropdown>
+
+        <Dropdown label="Toys">
+          <Link to="/toys/kids">Kids</Link>
+          <Link to="/toys/educational">Educational</Link>
+          <Link to="/toys/electronic">Electronic</Link>
+        </Dropdown>
+
+        <Dropdown label="Grocery">
+          <Link to="/grocery/fruits">Fruits</Link>
+          <Link to="/grocery/vegetables">Vegetables</Link>
+          <Link to="/grocery/beverages">Beverages</Link>
+        </Dropdown>
+
+        <Link to="/customer-service" className="hover:text-[#febd69]">
+          Customer Service
+        </Link>
       </nav>
 
-      {/* MOBILE SIDEBAR MENU */}
-      <div
-        className={`fixed top-0 left-0 h-full w-64 bg-[#232f3e] text-white z-50 transform transition-transform duration-300 ${
-          isMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-semibold">Menu</h2>
-          <FaTimes className="cursor-pointer text-xl" onClick={toggleMenu} />
-        </div>
-
-        <div className="flex flex-col space-y-4 p-4">
-          <Link to="/" onClick={toggleMenu} className="hover:text-[#febd69]">Home</Link>
-          <Link to="/mobiles" onClick={toggleMenu} className="hover:text-[#febd69]">Mobiles</Link>
-          <Link to="/electronics" onClick={toggleMenu} className="hover:text-[#febd69]">Electronics</Link>
-          <Link to="/fashion" onClick={toggleMenu} className="hover:text-[#febd69]">Fashion</Link>
-          <Link to="/home-kitchen" onClick={toggleMenu} className="hover:text-[#febd69]">Home & Kitchen</Link>
-          <Link to="/furniture" onClick={toggleMenu} className="hover:text-[#febd69]">Furniture</Link>
-          <Link to="/books" onClick={toggleMenu} className="hover:text-[#febd69]">Books</Link>
-          <Link to="/toys" onClick={toggleMenu} className="hover:text-[#febd69]">Toys</Link>
-          <Link to="/grocery" onClick={toggleMenu} className="hover:text-[#febd69]">Grocery</Link>
-          <Link to="/customer-service" onClick={toggleMenu} className="hover:text-[#febd69]">Customer Service</Link>
-        </div>
-      </div>
-
-      {/* BACKDROP when menu is open */}
+      {/* ✅ MOBILE MENU */}
       {isMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black opacity-50 z-40"
-          onClick={toggleMenu}
-        ></div>
+        <div className="md:hidden bg-[#232f3e] px-6 py-4 space-y-3 text-sm">
+          {menuData.map((cat) => (
+            <div key={cat.key}>
+              <button
+                onClick={() => toggleDropdown(cat.key)}
+                className="w-full flex justify-between items-center py-2 font-semibold text-white hover:text-[#febd69]"
+              >
+                {cat.label}
+                {dropdownsOpen[cat.key] ? (
+                  <FaChevronUp className="text-xs" />
+                ) : (
+                  <FaChevronDown className="text-xs" />
+                )}
+              </button>
+              {dropdownsOpen[cat.key] && (
+                <div className="pl-4 space-y-1 transition-all duration-200">
+                  {cat.links.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block text-gray-300 hover:text-[#febd69]"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+
+          <Link
+            to="/customer-service"
+            className="block pt-3 hover:text-[#febd69]"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Customer Service
+          </Link>
+        </div>
       )}
     </header>
+  );
+}
+
+// ✅ Menu Data for Mobile
+const menuData = [
+  {
+    key: "mobiles",
+    label: "Mobiles",
+    links: [
+      { name: "iPhone", to: "/mobiles/iphone" },
+      { name: "Android", to: "/mobiles/android" },
+    ],
+  },
+  {
+    key: "electronics",
+    label: "Electronics",
+    links: [
+      { name: "Modules", to: "/electronics/modules" },
+      { name: "Laptops", to: "/electronics/laptops" },
+      { name: "Cameras", to: "/electronics/cameras" },
+    ],
+  },
+  {
+    key: "fashion",
+    label: "Fashion",
+    links: [
+      { name: "Men", to: "/fashion/men" },
+      { name: "Women", to: "/fashion/women" },
+      { name: "Kids", to: "/fashion/kids" },
+    ],
+  },
+  {
+    key: "homeKitchen",
+    label: "Home & Kitchen",
+    links: [
+      { name: "Appliances", to: "/home-kitchen/appliances" },
+      { name: "Decor", to: "/home-kitchen/decor" },
+      { name: "Utensils", to: "/home-kitchen/utensils" },
+    ],
+  },
+  {
+    key: "furniture",
+    label: "Furniture",
+    links: [
+      { name: "Sofas", to: "/furniture/sofa" },
+      { name: "Tables", to: "/furniture/tables" },
+      { name: "Beds", to: "/furniture/beds" },
+    ],
+  },
+  {
+    key: "books",
+    label: "Books",
+    links: [
+      { name: "Fiction", to: "/books/fiction" },
+      { name: "Non-Fiction", to: "/books/non-fiction" },
+      { name: "Academic", to: "/books/academic" },
+    ],
+  },
+  {
+    key: "toys",
+    label: "Toys",
+    links: [
+      { name: "Kids", to: "/toys/kids" },
+      { name: "Educational", to: "/toys/educational" },
+      { name: "Electronic", to: "/toys/electronic" },
+    ],
+  },
+  {
+    key: "grocery",
+    label: "Grocery",
+    links: [
+      { name: "Fruits", to: "/grocery/fruits" },
+      { name: "Vegetables", to: "/grocery/vegetables" },
+      { name: "Beverages", to: "/grocery/beverages" },
+    ],
+  },
+];
+
+// ✅ Dropdown for Desktop
+function Dropdown({ label, children }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button className="flex items-center gap-1 hover:text-[#febd69]">
+        {label} <FaChevronDown className="text-xs" />
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-2 bg-white text-black rounded-md shadow-lg w-48 py-2 z-50">
+          {React.Children.map(children, (child) => (
+            <div className="block px-4 py-2 hover:bg-gray-100">{child}</div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

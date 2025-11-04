@@ -1,73 +1,77 @@
 import React from "react";
 import ProductCard from "./ProductCard";
 
-const furnitureProducts = [
-  {
-    id: 801,
-    title: "Wooden Study Table",
-    description: "Ergonomic and durable wooden table ideal for study or office use.",
-    price: "₹6,999",
-    image: "https://m.media-amazon.com/images/I/611P09KXYDL._SL1104_.jpg",
-  },
-  {
-    id: 802,
-    title: "Modern Sofa Set (3+1+1)",
-    description: "Comfortable fabric sofa set with contemporary design and soft cushions.",
-    price: "₹24,999",
-    image: "https://mysleepyhead.com/media/catalog/product/s/o/sofa_3_1_1_seater_online.jpg",
-  },
-  {
-    id: 803,
-    title: "King Size Bed with Storage",
-    description: "Spacious wooden bed with hydraulic storage and elegant finish.",
-    price: "₹32,499",
-    image: "https://m.media-amazon.com/images/I/91povv8zq9L._AC_SL1500_.jpg",
-  },
-  {
-    id: 804,
-    title: "Office Chair (Ergonomic Mesh)",
-    description: "High-back mesh chair with adjustable height and lumbar support.",
-    price: "₹7,999",
-    image: "https://tse3.mm.bing.net/th/id/OIP.kSAs8anFpG7UHFpxhf2PmgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
-  },
-  {
-    id: 805,
-    title: "Wooden Wardrobe (3 Door)",
-    description: "Spacious wardrobe with mirror and multiple shelves for clothes and storage.",
-    price: "₹18,999",
-    image: "https://images.woodenstreet.de/image/cache/data/wardrobe/montana-3-door-wardrobe/honey/updated/1-750x650.jpg",
-  },
-  {
-    id: 806,
-    title: "Coffee Table Set",
-    description: "Elegant center table with side stools and premium finish.",
-    price: "₹4,499",
-    image: "https://tse2.mm.bing.net/th/id/OIP.HLfK_s-Vc4YzRNL-IEnK4AHaFG?rs=1&pid=ImgDetMain&o=7&rm=3",
-  },
-  {
-    id: 807,
-    title: "Bookshelf (5-Tier Wooden Rack)",
-    description: "Sturdy and stylish wooden rack ideal for books and decor items.",
-    price: "₹3,999",
-    image: "https://m.media-amazon.com/images/I/81NL28tmWqL._AC_.jpg",
-  },
-  {
-    id: 808,
-    title: "Recliner Chair",
-    description: "Single-seater recliner with soft cushioning and manual reclining system.",
-    price: "₹14,999",
-    image: "https://tse2.mm.bing.net/th/id/OIP.sN3A9VKXXoWkue172q5A7AHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
-  },
-];
+const furnitureProducts = {
+  sofa: [
+    {
+      id: 201,
+      title: "Sheesham Wood Sofa Set",
+      description: "3-seater with cushions — durable and elegant finish.",
+      price: "₹25,999",
+      image: "https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/MAGNUS20924/WSFAMGNN3FVDO/WSFAMGNN3FVDO_LS_1.jpg?tr=w-1200",
+    },
+    {
+      id: 202,
+      title: "Recliner Sofa Chair",
+      description: "Manual recliner with cushioned armrests and plush seating.",
+      price: "₹19,499",
+      image: "https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/Virelia/WRCLVRLN1FVBL/WRCLVRLN1FVBL_LS_1.jpg?tr=w-1200",
+    },
+  ],
 
-export default function ProductGrid() {
+  tables: [
+    {
+      id: 203,
+      title: "Wooden Coffee Table",
+      description: "Modern design with storage shelf — walnut finish.",
+      price: "₹4,999",
+      image: "https://tse1.mm.bing.net/th/id/OIP.lrKweR1uVBzKM2tBG43-jwHaG5?w=1000&h=931&rs=1&pid=ImgDetMain&o=7&rm=3",
+    },
+    {
+      id: 204,
+      title: "Dining Table Set (4 Seater)",
+      description: "Solid wood dining set with cushioned chairs.",
+      price: "₹18,999",
+      image: "https://m.media-amazon.com/images/I/71cMHiDZWyL._SL1500_.jpg",
+    },
+  ],
+
+  beds: [
+    {
+      id: 205,
+      title: "Queen Size Bed with Storage",
+      description: "Hydraulic lift bed made with engineered wood.",
+      price: "₹29,999",
+      image: "https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/PETASTLEOR/Bed_WEWB7860HYSASTRA/Bed_WEWB7860HYSASTRA_1.jpg?tr=w-1200",
+    },
+    {
+      id: 206,
+      title: "King Size Teak Wood Bed",
+      description: "Classic design bed with strong frame and elegant polish.",
+      price: "₹38,999",
+      image: "https://tse4.mm.bing.net/th/id/OIP.Ya0h00TFzK9jtDLUnWZ7KAAAAA?rs=1&pid=ImgDetMain&o=7&rm=3",
+    },
+  ],
+};
+
+export default function ProductGrid({ category = "all" }) {
+  const categoriesToShow =
+    category === "all" ? Object.keys(furnitureProducts) : [category];
+
   return (
-    <div className="w-full flex justify-center">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6 py-10 w-full max-w-screen-2xl">
-        {furnitureProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+    <div className="w-full flex flex-col items-center">
+      {categoriesToShow.map((key) => (
+        <section key={key} className="w-full mt-10">
+          <h2 className="text-2xl font-semibold text-center mb-4 text-[#febd69] capitalize">
+            {key}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-6">
+            {furnitureProducts[key]?.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
