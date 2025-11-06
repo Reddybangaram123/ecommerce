@@ -99,7 +99,8 @@ const electronicProducts = {
       description:
         "14-inch OLED, Ryzen 7, 16GB RAM, 512GB SSD, backlit keyboard.",
       price: "₹89,999",
-      image: "https://tse3.mm.bing.net/th/id/OIP.qvTEPAbVXMHVTn5f8isspAHaGU?rs=1&pid=ImgDetMain&o=7&rm=3",
+      image:
+        "https://tse3.mm.bing.net/th/id/OIP.qvTEPAbVXMHVTn5f8isspAHaGU?rs=1&pid=ImgDetMain&o=7&rm=3",
     },
   ],
 
@@ -119,7 +120,8 @@ const electronicProducts = {
       description:
         "24.2MP APS-C sensor, 4K video, flip screen — ideal for creators.",
       price: "₹68,990",
-      image: "https://tse3.mm.bing.net/th/id/OIP.DkXEZajTHu9R1YknKadCNwHaGr?rs=1&pid=ImgDetMain&o=7&rm=3",
+      image:
+        "https://tse3.mm.bing.net/th/id/OIP.DkXEZajTHu9R1YknKadCNwHaGr?rs=1&pid=ImgDetMain&o=7&rm=3",
     },
     {
       id: 503,
@@ -127,7 +129,8 @@ const electronicProducts = {
       description:
         "5.3K60 UHD video, waterproof up to 10m, HyperSmooth 6.0 stabilization.",
       price: "₹45,999",
-      image: "https://tse1.mm.bing.net/th/id/OIP.LyI_9PMOPsBYaAcPwOdXBQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+      image:
+        "https://tse1.mm.bing.net/th/id/OIP.LyI_9PMOPsBYaAcPwOdXBQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
     },
   ],
 };
