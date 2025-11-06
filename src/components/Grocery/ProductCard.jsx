@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import { useCart } from "../../context/CartContext";
 
 export default function ProductCard({ product }) {
@@ -22,13 +23,29 @@ export default function ProductCard({ product }) {
       <div className="flex justify-between items-center mt-4">
         <span className="text-xl font-bold text-green-600">{product.price}</span>
         <button
-          onClick={() => addToCart(product)}
-          className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 
-            px-2 sm:px-3 py-1 rounded-md font-semibold 
-            text-xs sm:text-sm md:text-base transition-all duration-300"
-        >
-          Add to Cart
-        </button>
+  onClick={() => {
+    axios
+      .post("http://localhost:3001/add-grocery", {
+        subCategory: product.subCategory || "Grocery",
+        itemName: product.itemName || product.title,
+        description: product.description,
+        price: product.price,
+        imageUrl: product.imageUrl || product.image,
+      })
+      .then((res) => {
+        console.log(res.data.message);
+        addToCart(product);
+      })
+      .catch((err) => console.error("❌ Error adding product:", err));
+  }}
+  className="
+    bg-yellow-400 hover:bg-yellow-500 text-gray-900 
+    px-2 sm:px-3 py-1 rounded-md font-semibold 
+    text-xs sm:text-sm md:text-base transition-all duration-300
+  "
+>
+  Add to Cart
+</button>
       </div>
     </div>
   );
