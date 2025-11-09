@@ -1,62 +1,60 @@
 import React from "react";
 import ProductCard from "./ProductCard";
 
-const furnitureProducts = {
+const furnitureData = {
   sofa: [
     {
-      id: 201,
-      title: "Sheesham Wood Sofa Set",
-      description: "3-seater with cushions — durable and elegant finish.",
-      price: "₹25,999",
-      image: "https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/MAGNUS20924/WSFAMGNN3FVDO/WSFAMGNN3FVDO_LS_1.jpg?tr=w-1200",
+      id: 701,
+      title: "L-Shaped Fabric Sofa",
+      description: "Spacious 6-seater sofa with high-quality fabric finish.",
+      price: "₹28,999",
+      image: "https://m.media-amazon.com/images/I/81ZfUO2NizL._SL1500_.jpg",
     },
     {
-      id: 202,
+      id: 702,
       title: "Recliner Sofa Chair",
-      description: "Manual recliner with cushioned armrests and plush seating.",
-      price: "₹19,499",
-      image: "https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/Virelia/WRCLVRLN1FVBL/WRCLVRLN1FVBL_LS_1.jpg?tr=w-1200",
+      description: "Single-seater recliner with plush cushioning and handle.",
+      price: "₹15,499",
+      image: "https://m.media-amazon.com/images/I/61TT7bIKrHL._SL1500_.jpg",
     },
   ],
-
   tables: [
     {
-      id: 203,
+      id: 703,
       title: "Wooden Coffee Table",
-      description: "Modern design with storage shelf — walnut finish.",
-      price: "₹4,999",
-      image: "https://tse1.mm.bing.net/th/id/OIP.lrKweR1uVBzKM2tBG43-jwHaG5?w=1000&h=931&rs=1&pid=ImgDetMain&o=7&rm=3",
+      description: "Solid sheesham wood table with natural matte finish.",
+      price: "₹5,499",
+      image: "https://m.media-amazon.com/images/I/81cMtn0T3rL._SL1500_.jpg",
     },
     {
-      id: 204,
-      title: "Dining Table Set (4 Seater)",
-      description: "Solid wood dining set with cushioned chairs.",
-      price: "₹18,999",
-      image: "https://m.media-amazon.com/images/I/71cMHiDZWyL._SL1500_.jpg",
+      id: 704,
+      title: "Dining Table Set (4 Chairs)",
+      description: "Compact dining table set for modern apartments.",
+      price: "₹17,999",
+      image: "https://m.media-amazon.com/images/I/81a6BPsqIoL._SL1500_.jpg",
     },
   ],
-
   beds: [
     {
-      id: 205,
+      id: 705,
       title: "Queen Size Bed with Storage",
-      description: "Hydraulic lift bed made with engineered wood.",
-      price: "₹29,999",
-      image: "https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/PETASTLEOR/Bed_WEWB7860HYSASTRA/Bed_WEWB7860HYSASTRA_1.jpg?tr=w-1200",
+      description: "Hydraulic lift storage bed, engineered wood build.",
+      price: "₹22,999",
+      image: "https://m.media-amazon.com/images/I/71JwYJvnZRL._SL1500_.jpg",
     },
     {
-      id: 206,
-      title: "King Size Teak Wood Bed",
-      description: "Classic design bed with strong frame and elegant polish.",
-      price: "₹38,999",
-      image: "https://tse4.mm.bing.net/th/id/OIP.Ya0h00TFzK9jtDLUnWZ7KAAAAA?rs=1&pid=ImgDetMain&o=7&rm=3",
+      id: 706,
+      title: "King Size Wooden Bed",
+      description: "Teak finish solid wood bed frame, durable and stylish.",
+      price: "₹31,999",
+      image: "https://m.media-amazon.com/images/I/81LQh9smq2L._SL1500_.jpg",
     },
   ],
 };
 
 export default function ProductGrid({ category = "all" }) {
   const categoriesToShow =
-    category === "all" ? Object.keys(furnitureProducts) : [category];
+    category === "all" ? Object.keys(furnitureData) : [category];
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -66,7 +64,7 @@ export default function ProductGrid({ category = "all" }) {
             {key}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-6">
-            {furnitureProducts[key]?.map((product) => (
+            {furnitureData[key]?.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

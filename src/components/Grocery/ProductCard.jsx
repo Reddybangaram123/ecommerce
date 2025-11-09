@@ -11,7 +11,6 @@ export default function ProductCard({ product }) {
         alt={product.title}
         className="h-56 w-full object-contain mb-3 rounded-md"
       />
-
       <h3 className="font-semibold text-gray-900 text-lg truncate">
         {product.title}
       </h3>
@@ -24,8 +23,7 @@ export default function ProductCard({ product }) {
         <button
           onClick={() => addToCart(product)}
           className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 
-            px-2 sm:px-3 py-1 rounded-md font-semibold 
-            text-xs sm:text-sm md:text-base transition-all duration-300"
+            px-3 py-1 rounded-md font-semibold text-sm md:text-base transition-all duration-300"
         >
           Add to Cart
         </button>
