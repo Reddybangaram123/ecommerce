@@ -1,3 +1,4 @@
+/* ---------- Default App Styles ---------- */
 .App {
   text-align: center;
 }
@@ -35,4 +36,37 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ---------- ✅ Global Fixes for Scrollbars ---------- */
+
+/* ✅ Hide horizontal overflow on entire page */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* ✅ Hide scrollbars globally */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ✅ Dropdown animation (smooth opening) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-in-out;
 }

@@ -1,12 +1,13 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import ProductGrid from "../components/Toys/ProductGrid";
 
 export default function Toys() {
-  const { type } = useParams();
   return (
-    <div className="min-h-screen bg-gray-50">
-      <ProductGrid category={type || "all"} />
+    <div className="bg-gray-100 min-h-screen">
+      <h2 className="text-3xl text-center font-semibold py-6 text-[#febd69]">
+        Toys
+      </h2>
+      <ProductGrid />
     </div>
   );
 }

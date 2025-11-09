@@ -1,12 +1,13 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import ProductGrid from "../components/Mobiles/ProductGrid";
 
 export default function Mobiles() {
-  const { category } = useParams(); // iphone or android
   return (
-    <div className="text-center mt-10">
-      <ProductGrid category={category || "all"} />
+    <div className="bg-gray-100 min-h-screen">
+      <h2 className="text-3xl text-center font-semibold py-6 text-[#febd69]">
+        Mobiles
+      </h2>
+      <ProductGrid />
     </div>
   );
 }
