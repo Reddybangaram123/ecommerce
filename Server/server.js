@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");        // ✅ require dotenv
-const ElectronicRoutes = require("./router/ElectronicRoute");
+const ElectronicRoutes = require("./routes/ElectronicRoute");
 
 // ✅ Load env variables
 dotenv.config();

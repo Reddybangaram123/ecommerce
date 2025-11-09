@@ -2,7 +2,7 @@
 
 const mongoose = require("mongoose");
 
-const iotProductSchema = new mongoose.Schema({
+const ElectronicProductSchema = new mongoose.Schema({
   category: { type: String, default: "Electronics" }, // Main category
   subCategory: { type: String, default: "Electronic Components" }, 
   itemName: { type: String, required: true }, 
@@ -12,4 +12,4 @@ const iotProductSchema = new mongoose.Schema({
   dateAdded: { type: Date, default: Date.now }, // Auto timestamp
 });
 
-module.exports = mongoose.model("electronics", iotProductSchema);
+module.exports = mongoose.model("electronicscategories", ElectronicProductSchema);
