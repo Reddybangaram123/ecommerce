@@ -9,4 +9,4 @@ const iotProductSchema = new mongoose.Schema({
   dateAdded: { type: Date, default: Date.now }, // Auto timestamp
 });
 
-module.exports = mongoose.model("categories", iotProductSchema);
+module.exports = mongoose.model("furniturecategories", iotProductSchema);
