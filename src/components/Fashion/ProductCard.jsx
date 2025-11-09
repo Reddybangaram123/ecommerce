@@ -10,8 +10,8 @@ export default function ProductCard({ product }) {
 
     axios
       .post(apiUrl, {
-        category: "Books",
-        subCategory: product.subCategory || "Book Component",
+        category: "Fashion",
+        subCategory: product.subCategory || "Fashion Component",
         itemName: product.itemName || product.title,
         description: product.description,
         price: product.price,
