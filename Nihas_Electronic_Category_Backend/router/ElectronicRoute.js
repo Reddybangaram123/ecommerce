@@ -22,7 +22,7 @@ router.post("/add-electronics", async (req, res) => {
     });
 
     await newProduct.save();
-    res.json({ message: "✅ IOT product added successfully!", data: newProduct });
+    res.json({ message: "✅ Electronic product added successfully!", data: newProduct });
   } catch (err) {
     console.error("❌ Error in /add-electronics:", err.message);
     res.status(500).json({ error: err.message });
