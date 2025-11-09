@@ -38,6 +38,11 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ✅ Prevent scroll when sidebar is open
+  useEffect(() => {
+    document.body.style.overflow = isAllSidebarOpen ? "hidden" : "auto";
+  }, [isAllSidebarOpen]);
+
   const handleAuth = () => {
     if (loggedInUser) {
       localStorage.removeItem("username");
@@ -52,7 +57,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-[#131921] text-white relative">
+    <header className="bg-[#131921] text-white relative z-[50]">
       {/* 🔹 TOP NAVBAR */}
       <div className="flex items-center justify-between px-6 py-3">
         {/* Logo */}
@@ -146,7 +151,7 @@ export default function Navbar() {
       </div>
 
       {/* 🔹 SECOND NAVBAR (ALL MENUS) */}
-      <nav className="bg-[#232f3e] text-sm px-6 py-2 flex items-center gap-6 overflow-x-auto scrollbar-hide relative z-[999]">
+      <nav className="bg-[#232f3e] text-sm px-6 py-2 flex items-center gap-6 overflow-visible scrollbar-hide relative z-[49]">
         {/* ALL Sidebar Button */}
         <button
           onClick={() => setIsAllSidebarOpen(!isAllSidebarOpen)}
@@ -183,12 +188,7 @@ export default function Navbar() {
 
               {isOpen && (
                 <div
-                  className="absolute left-1/2 -translate-x-1/2 top-full mt-2 rounded-md shadow-lg border border-gray-200 z-[9999] bg-white text-black w-64 animate-fadeIn"
-                  style={{
-                    pointerEvents: "auto",
-                    overflow: "hidden",
-                    transformOrigin: "top center",
-                  }}
+                  className="absolute left-0 top-full mt-2 rounded-md shadow-lg border border-gray-200 z-[9999] bg-white text-black w-64 animate-fadeIn"
                 >
                   {cat.links.map((link) => (
                     <Link
@@ -215,17 +215,22 @@ export default function Navbar() {
         </Link>
       </nav>
 
-      {/* 🟨 ALL SIDEBAR */}
+      {/* 🟨 ALL SIDEBAR & OVERLAY */}
+      {isAllSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-[80]"
+          onClick={() => setIsAllSidebarOpen(false)}
+        ></div>
+      )}
+
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-screen w-80 bg-white text-black shadow-xl transform transition-transform duration-300 z-[9999] overflow-y-scroll scrollbar-hide ${
+        className={`fixed top-0 left-0 h-screen w-80 bg-white text-black shadow-2xl transform transition-transform duration-300 z-[100] overflow-y-auto scrollbar-hide ${
           isAllSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between bg-[#232f3e] text-white p-4 sticky top-0 z-10">
-          <h2 className="font-bold text-lg">
-            Hello, {loggedInUser || "Guest"}
-          </h2>
+        <div className="flex items-center justify-between bg-[#232f3e] text-white p-4 sticky top-0 z-[101]">
+          <h2 className="font-bold text-lg">Hello, {loggedInUser || "Guest"}</h2>
           <button onClick={() => setIsAllSidebarOpen(false)}>
             <FaTimes size={20} />
           </button>
