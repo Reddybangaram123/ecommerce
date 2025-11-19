@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import ProductCard from "./ProductCard";
 
 const booksData = {
@@ -55,20 +56,93 @@ const booksData = {
 };
 
 export default function ProductGrid({ category = "all" }) {
+  const { type } = useParams(); // reads /books/:type when present
+  const [backendBooks, setBackendBooks] = useState({}); // grouped by subcategory
+  const [loading, setLoading] = useState(false);
+
+  // helper to lowercase & trim
+  const norm = (s) => (s ? String(s).trim().toLowerCase() : "");
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setLoading(true);
+      try {
+        // If a type is in URL, fetch only that subcategory
+        if (type) {
+          const sub = norm(type);
+          // call backend endpoint that accepts /api/products/books/:subcategory
+          const res = await fetch(`http://localhost:3001/api/products/books/${sub}`);
+          if (!res.ok) throw new Error("Failed to fetch subcategory");
+          const data = await res.json(); // array
+          const grouped = {};
+          grouped[sub] = data.map((item) => ({
+            id: item._id,
+            title: item.name || item.title,
+            description: item.description || "",
+            price: item.price ? `₹${item.price}` : item.price,
+            image: item.image || "",
+          }));
+          setBackendBooks(grouped);
+        } else {
+          // fetch all books
+          const res = await fetch("http://localhost:3001/api/products/books");
+          if (!res.ok) throw new Error("Failed to fetch books");
+          const data = await res.json(); // array
+          const grouped = {};
+          data.forEach((item) => {
+            const sub = norm(item.subcategory) || "other";
+            if (!grouped[sub]) grouped[sub] = [];
+            grouped[sub].push({
+              id: item._id,
+              title: item.name || item.title,
+              description: item.description || "",
+              price: item.price ? `₹${item.price}` : item.price,
+              image: item.image || "",
+            });
+          });
+          setBackendBooks(grouped);
+        }
+      } catch (err) {
+        console.warn("Books fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBooks();
+  }, [type]);
+
+  // merge static + backend data (preserve existing static data keys)
+  const finalBooks = {};
+  const allKeys = new Set([...Object.keys(booksData), ...Object.keys(backendBooks)]);
+
+  allKeys.forEach((key) => {
+    finalBooks[key] = [
+      ...(booksData[key] || []),
+      ...(backendBooks[key] || []),
+    ];
+  });
+
   const categoriesToShow =
-    category === "all" ? Object.keys(booksData) : [category];
+    category === "all" ? Array.from(allKeys) : [category];
 
   return (
     <div className="w-full flex flex-col items-center">
+      {loading && <p className="text-center py-4">Loading books…</p>}
       {categoriesToShow.map((key) => (
         <section key={key} className="w-full mt-10">
           <h2 className="text-2xl font-semibold text-center mb-4 text-[#febd69] capitalize">
             {key.replace("-", " ")}
           </h2>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-6">
-            {booksData[key]?.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {finalBooks[key]?.length ? (
+              finalBooks[key].map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              <p className="text-gray-500 italic">No products found.</p>
+            )}
           </div>
         </section>
       ))}

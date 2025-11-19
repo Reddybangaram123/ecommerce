@@ -9,6 +9,8 @@ const electronicsrouter = require("./routes/electronicsrouter");
 const furniturerouter = require("./routes/furniturerouter");
 const homekitchenrouter = require("./routes/homekitchenrouter");
 const groceryrouter = require("./routes/groceryrouter");
+const productrouter = require("./routes/productrouter");
+
 
 const app = express();
 app.use(express.json());
@@ -28,6 +30,8 @@ app.use("/", electronicsrouter);
 app.use("/", furniturerouter);
 app.use("/", homekitchenrouter);
 app.use("/", groceryrouter);
+app.use("/api/products", productrouter);
+
 
 // ✅ Root endpoint
 app.get("/", (req, res) => {

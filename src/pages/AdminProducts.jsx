@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function AdminProducts() {
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");
+  // eslint-disable-next-line
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [products, setProducts] = useState([]);
@@ -65,7 +67,45 @@ export default function AdminProducts() {
   const selectedCategory =
     menuData.find((cat) => cat.label === category) || { subcategories: [] };
 
-  // ✅ Handle Image Upload
+  // Fetch products from backend on mount
+  useEffect(() => {
+    let mounted = true;
+    const fetchProducts = async () => {
+      try {
+        // try common endpoints (robust to small backend differences)
+        const tryUrls = [
+  "http://localhost:3001/api/products"
+];
+
+        let res = null;
+        for (const url of tryUrls) {
+          try {
+            res = await axios.get(url);
+            if (res && (Array.isArray(res.data) || res.data.products || res.data.length)) {
+              break; // got something
+            }
+          } catch (err) {
+            // ignore & try next
+          }
+        }
+        if (!res) return;
+        // normalize response
+        let list = [];
+        if (Array.isArray(res.data)) list = res.data;
+        else if (res.data.products) list = res.data.products;
+        else if (res.data.data) list = res.data.data;
+        else if (res.data.items) list = res.data.items;
+        else if (res.data.length) list = res.data;
+        if (mounted) setProducts(list);
+      } catch (err) {
+        console.error("Fetch products error:", err);
+      }
+    };
+    fetchProducts();
+    return () => { mounted = false; };
+  }, []);
+
+  // ✅ Handle Image Upload (unchanged)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -78,8 +118,8 @@ export default function AdminProducts() {
     }
   };
 
-  // ✅ Add Product
-  const handleAddProduct = (e) => {
+  // ✅ Add Product — now sends to backend and falls back to local state if backend fails
+  const handleAddProduct = async (e) => {
     e.preventDefault();
 
     if (!productName || !price || !category || !subcategory) {
@@ -87,7 +127,8 @@ export default function AdminProducts() {
       return;
     }
 
-    const newProduct = {
+    // create product object same shape as before + minimal fields backend expects
+    const newProductLocal = {
       id: Date.now(),
       name: productName,
       price,
@@ -98,14 +139,57 @@ export default function AdminProducts() {
       date: new Date().toLocaleString(),
     };
 
-    setProducts([...products, newProduct]);
-    // Clear inputs
+    // optimistic UI: add locally first so admin sees immediate result
+    setProducts((prev) => [...prev, newProductLocal]);
+
+    // clear inputs right away (keeps original UX)
     setProductName("");
     setPrice("");
     setCategory("");
     setSubcategory("");
     setImage(null);
     setPreview("");
+
+    // Try to persist to backend (try a couple common endpoints)
+    const payload = {
+  name: newProductLocal.name,
+  price: Number(newProductLocal.price),
+  category: newProductLocal.category,
+  subcategory: newProductLocal.subcategory,
+  image: newProductLocal.image || ""
+};
+
+
+    const postUrls = [
+  "http://localhost:3001/api/products/add"
+];
+    let saved = null;
+    for (const url of postUrls) {
+      try {
+        const res = await axios.post(url, payload);
+        // expect res.data.product or res.data or res.data._id
+        if (res && res.data) {
+          saved = res.data.product || res.data || null;
+          break;
+        }
+      } catch (err) {
+        // try next url
+      }
+    }
+
+    if (saved) {
+      // replace the optimistic local item with returned item when possible
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === newProductLocal.id ? (saved._id ? { ...saved } : { ...saved, id: newProductLocal.id }) : p
+        )
+      );
+      console.log("Product saved to backend:", saved);
+    } else {
+      // backend failed — keep local copy but notify
+      alert("⚠️ Product was added locally but failed to save to server. Check server or network.");
+      console.warn("Failed to persist product to backend; kept local-only product.");
+    }
   };
 
   return (
@@ -239,7 +323,7 @@ export default function AdminProducts() {
             </thead>
             <tbody>
               {products.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-50">
+                <tr key={p.id || p._id || (p.name + Math.random())} className="hover:bg-gray-50">
                   <td className="border px-4 py-2">
                     {p.image ? (
                       <img
@@ -258,9 +342,9 @@ export default function AdminProducts() {
                   <td className="border px-4 py-2">{p.category}</td>
                   <td className="border px-4 py-2">{p.subcategory}</td>
                   <td className="border px-4 py-2 text-blue-600 font-semibold">
-                    {p.addedBy}
+                    {p.addedBy || p.meta?.addedBy || adminName}
                   </td>
-                  <td className="border px-4 py-2 text-gray-600">{p.date}</td>
+                  <td className="border px-4 py-2 text-gray-600">{p.date || p.meta?.date || ""}</td>
                 </tr>
               ))}
             </tbody>
