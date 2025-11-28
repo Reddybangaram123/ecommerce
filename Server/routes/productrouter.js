@@ -2,180 +2,249 @@ const express = require("express");
 const router = express.Router();
 const Product = require("../model/productmodel");
 
-// ------------------------------------
-// Helpers
-// ------------------------------------
-function normalizeString(s) {
-  if (!s) return s;
-  return String(s).trim().toLowerCase();
+// ------------------------------------------------------------
+// Helper: Normalize strings
+// ------------------------------------------------------------
+const normalize = (text) => {
+  if (!text) return "";
+  return String(text).trim().toLowerCase();
+};
+
+// ------------------------------------------------------------
+// CATEGORY–SUBCATEGORY MAPS (AUTO NORMALIZING)
+// ------------------------------------------------------------
+
+// MOBILES
+const mobileMap = {
+  iphone: "iphone",
+  iphones: "iphone",
+  "i phone": "iphone",
+  android: "android phones",
+  androids: "android phones",
+  "android phones": "android phones",
+  accessories: "mobile accessories",
+  accessory: "mobile accessories",
+  "mobile accessories": "mobile accessories",
+  smartwatch: "smart watches",
+  "smart watch": "smart watches",
+  "smart watches": "smart watches",
+  powerbank: "power banks",
+  "power bank": "power banks",
+  "power banks": "power banks",
+};
+
+// ELECTRONICS
+const electronicsMap = {
+  laptop: "laptops",
+  laptops: "laptops",
+  camera: "cameras",
+  cameras: "cameras",
+  tv: "smart tvs",
+  "smart tv": "smart tvs",
+  "smart tvs": "smart tvs",
+  headphone: "headphones",
+  headphones: "headphones",
+  speaker: "speakers",
+  speakers: "speakers",
+};
+
+// FASHION
+const fashionMap = {
+  men: "men",
+  "men clothing": "men",
+  women: "women",
+  "women clothing": "women",
+  footwear: "footwear",
+  shoes: "footwear",
+  jewellery: "jewellery",
+  watches: "watches",
+};
+
+// HOME & KITCHEN
+const homeKitchenMap = {
+  furniture: "furniture",
+  appliances: "appliances",
+  decor: "decor",
+  lighting: "lighting",
+  storage: "storage & organizers",
+  organizers: "storage & organizers",
+  "storage & organizers": "storage & organizers",
+};
+
+// BOOKS
+const bookMap = {
+  fiction: "fiction",
+  fictional: "fiction",
+  educational: "educational",
+  academics: "educational",
+  motivational: "motivational",
+  biography: "biographies",
+  biographies: "biographies",
+  comics: "comics",
+};
+
+// TOYS
+const toyMap = {
+  "action figures": "action figures",
+  "soft toys": "soft toys",
+  "board games": "board games",
+  "outdoor play": "outdoor play",
+  "educational toys": "educational toys",
+};
+
+// GROCERY
+const groceryMap = {
+  fruits: "fruits & vegetables",
+  vegetables: "fruits & vegetables",
+  snacks: "snacks & beverages",
+  beverages: "snacks & beverages",
+  essentials: "cooking essentials",
+  "cooking essentials": "cooking essentials",
+  household: "household items",
+  "household items": "household items",
+  personal: "personal care",
+  "personal care": "personal care",
+};
+
+// MASTER CATEGORY MAP
+const categoryMap = {
+  mobiles: mobileMap,
+  electronics: electronicsMap,
+  fashion: fashionMap,
+  "home & kitchen": homeKitchenMap,
+  books: bookMap,
+  toys: toyMap,
+  grocery: groceryMap,
+  furniture: homeKitchenMap,
+};
+
+// ------------------------------------------------------------
+// MASTER NORMALIZER FUNCTION
+// ------------------------------------------------------------
+function normalizeCategoryAndSub(category, subcategory) {
+  const cat = normalize(category);
+  let sub = normalize(subcategory);
+
+  if (categoryMap[cat]) {
+    sub = categoryMap[cat][sub] || sub;
+  }
+
+  return { category: cat, subcategory: sub };
 }
 
-// BOOK subcategory normalization
-const bookSubcategoryMap = {
-  fictional: "fiction",
-  educational: "academic",
-  motivational: "motivational",
-};
-
-// ELECTRONICS subcategory normalization (admin → frontend)
-const electronicsSubcategoryMap = {
-  laptops: "laptops",
-  cameras: "cameras",
-  "smart tvs": "smart tvs",
-  speakers: "speakers",
-  appliances: "appliances",
-  modules: "modules",
-};
-
-// ------------------------------------
-// ADD PRODUCT (Used by Admin Panel)
-// Also handles electronics auto-normalization
-// ------------------------------------
+// ------------------------------------------------------------
+// ADD PRODUCT (ADMIN PANEL)
+// ------------------------------------------------------------
 router.post("/add", async (req, res) => {
   try {
     console.log("📥 Incoming POST /api/products/add");
     console.log("Payload:", req.body);
 
-    req.body.category = normalizeString(req.body.category);
-    req.body.subcategory = normalizeString(req.body.subcategory);
+    const { category, subcategory } = normalizeCategoryAndSub(
+      req.body.category,
+      req.body.subcategory
+    );
 
-    // BOOKS mapping
-    if (req.body.category === "books") {
-      req.body.subcategory = bookSubcategoryMap[req.body.subcategory] || req.body.subcategory;
+    // Clean price
+    let price = req.body.price;
+    if (price) {
+      price = Number(String(price).replace(/[₹,]/g, ""));
     }
 
-    // ELECTRONICS mapping
-    if (req.body.category === "electronics") {
-      req.body.subcategory =
-        electronicsSubcategoryMap[req.body.subcategory] || req.body.subcategory;
-    }
+    const newProduct = await Product.create({
+      ...req.body,
+      category,
+      subcategory,
+      price,
+    });
 
-    // clean price
-    if (req.body.price) {
-      req.body.price = Number(String(req.body.price).replace(/[₹,]/g, ""));
-    }
-
-    const product = await Product.create(req.body);
-    res.status(201).json({ success: true, product });
-
+    res.status(201).json({
+      success: true,
+      message: "Product added successfully!",
+      product: newProduct,
+    });
   } catch (err) {
     console.log("❌ Add product error:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// ------------------------------------
-// ADD ELECTRONICS (from ProductCard.js)
-// ------------------------------------
+// ------------------------------------------------------------
+// ADD ELECTRONICS DIRECT (PRODUCT CARD FORM)
+// ------------------------------------------------------------
 router.post("/add-electronics", async (req, res) => {
   try {
     const { subCategory, itemName, description, price, imageUrl } = req.body;
 
-    const numericPrice = Number(String(price).replace(/[₹,]/g, ""));
+    const mappedSub = electronicsMap[normalize(subCategory)] || normalize(subCategory);
+    const numPrice = Number(String(price).replace(/[₹,]/g, ""));
 
-    const newProduct = new Product({
+    const saved = await Product.create({
       category: "electronics",
-      subcategory: normalizeString(subCategory),
-      itemName,
-      title: itemName, // ensures frontend compatibility
+      subcategory: mappedSub,
+      name: itemName,
       description,
-      price: numericPrice,
-      imageUrl,
+      price: numPrice,
       image: imageUrl,
+      imageUrl,
     });
-
-    await newProduct.save();
 
     res.json({
-      message: "✅ Electronic product added successfully!",
-      data: newProduct,
+      message: "📦 Electronic product added!",
+      product: saved,
     });
-
   } catch (err) {
-    console.error("❌ Error in /add-electronics:", err.message);
+    console.error("❌ /add-electronics ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ------------------------------------
+// ------------------------------------------------------------
 // GET ALL PRODUCTS
-// ------------------------------------
+// ------------------------------------------------------------
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// ------------------------------------
-// BOOKS
-// ------------------------------------
-router.get("/books", async (req, res) => {
-  try {
-    const books = await Product.find({
-      category: { $in: ["books", "Books", "BOOKS"] },
-    });
-    res.json(books);
+    res.json({ success: true, products });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ------------------------------------
-// ELECTRONICS (ALL)
-// ------------------------------------
-router.get("/electronics", async (req, res) => {
+// ------------------------------------------------------------
+// GET BY CATEGORY (ANY)
+// ------------------------------------------------------------
+router.get("/:category", async (req, res) => {
   try {
-    const electronics = await Product.find({
-      category: { $in: ["electronics", "ELECTRONICS", "Electronics"] },
-    });
-    res.json(electronics);
+    const category = normalize(req.params.category);
+
+    const data = await Product.find({ category });
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ------------------------------------
-// ELECTRONICS (SUBCATEGORY)
-// ------------------------------------
-router.get("/electronics/:subcategory", async (req, res) => {
-  try {
-    const sub = normalizeString(req.params.subcategory);
-
-    const items = await Product.find({
-      category: { $in: ["electronics", "Electronics", "ELECTRONICS"] },
-      subcategory: { $regex: new RegExp(`^${sub}$`, "i") },
-    });
-
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ------------------------------------
-// ANY CATEGORY + ANY SUBCATEGORY
-// ------------------------------------
+// ------------------------------------------------------------
+// GET BY CATEGORY + SUBCATEGORY (AUTO-MAPPED)
+// ------------------------------------------------------------
 router.get("/:category/:subcategory", async (req, res) => {
   try {
-    let category = normalizeString(req.params.category);
-    let subcategory = normalizeString(req.params.subcategory);
+    const { category, subcategory } = normalizeCategoryAndSub(
+      req.params.category,
+      req.params.subcategory
+    );
 
-    if (category === "books") {
-      subcategory = bookSubcategoryMap[subcategory] || subcategory;
-    }
-    if (category === "electronics") {
-      subcategory = electronicsSubcategoryMap[subcategory] || subcategory;
-    }
+    const products = await Product.find({
+      category,
+      subcategory,
+    });
 
-    const products = await Product.find({ category, subcategory });
     res.json(products);
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 module.exports = router;
+
